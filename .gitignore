@@ -1,0 +1,5 @@
+.idea
+log.log
+*.session
+*.session-journal
+config.ini
