@@ -1,5 +1,7 @@
 .idea
 log.log
+*.db
+*.db-journal
 *.session
 *.session-journal
 config.ini
