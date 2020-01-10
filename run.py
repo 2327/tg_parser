@@ -239,6 +239,8 @@ while True:
         history = None
         offset_msg = 0
         time.sleep(int(interval))
+        log.debug(' ')
+        log.debug(' ')
     else: 
         log.debug('I havent tasks. Skipping.')
         time.sleep(int(interval))
