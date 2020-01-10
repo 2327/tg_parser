@@ -199,10 +199,11 @@ while True:
         log.debug('Parsing channel...')
         all_messages = []
 
-        if current_id == 0: 
+        try:
+            current_id
             log.debug('Last id not found. Reset all data.')
             limit_date = datetime.now() + timedelta(minutes=-1)
-        else:
+        except:
             limit_date = None
 
         latest_msg = client(GetHistoryRequest(peer=channel, offset_id=offset_msg, offset_date=limit_date, add_offset=0, limit=1, max_id=0, min_id=0, hash=0))
