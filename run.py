@@ -141,8 +141,8 @@ def proccessing_deals(subject, end):
 
 def prolongation_deals():
     c = conn.cursor()
+    log.debug('Stored deals:')
     for row in c.execute('''SELECT id,subject,end,rate FROM deals'''):
-        log.debug(f'Deal for prolongation: {row}')
         endtime, endutcunixtime = calculate_endtime()
 
         if int(row[2]) < round((datetime.now()-timedelta(minutes=1)).timestamp()): 
