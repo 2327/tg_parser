@@ -201,10 +201,11 @@ while True:
 
         try:
             current_id
-            log.debug('Last id not found. Reset all data.')
-            limit_date = datetime.now() + timedelta(minutes=-1)
-        except:
             limit_date = None
+        except:
+            log.debug('Last id not found. Reset all data.')
+            current_id = 0
+            limit_date = datetime.now() + timedelta(minutes=-1)
 
         latest_msg = client(GetHistoryRequest(peer=channel, offset_id=offset_msg, offset_date=limit_date, add_offset=0, limit=1, max_id=0, min_id=0, hash=0))
 
@@ -226,8 +227,6 @@ while True:
                 log.debug(f'Error! current_id: {current_id}, message_id:  {message.id}, message: {message.message}')
                 current_id = message.id
                 counter_sql(current_id)
-                with open("id.log","w") as f:
-                    f.write(str(current_id))
 
 
         log.debug('Prolongation of remaining transactions.')
