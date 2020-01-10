@@ -33,7 +33,7 @@ channel_id = config['Telegram']['channel_id']
 interval = config['Telegram']['interval']
 debug = config['bot']['debug']
 try:
-    intercalate = config['deals']['intercalate']
+    intercalate = int(config['deals']['intercalate'])
 except:
     intercalate = 1
 
