@@ -141,30 +141,32 @@ def proccessing_deals(subject, end):
 
 def prolongation_deals():
     c = conn.cursor()
-    log.debug('Stored deals:')
-    for row in c.execute('''SELECT id,subject,end,rate FROM deals'''):
-        endtime, endutcunixtime = calculate_endtime()
+    stored_deals = c.execute('''SELECT id,subject,end,rate FROM deals''')
+    if stored_deals.fetchone():
+        log.debug(f'Stored deals:')
+        for row in c.execute('''SELECT id,subject,end,rate FROM deals'''):
+            endtime, endutcunixtime = calculate_endtime()
 
-        if int(row[2]) < round((datetime.now()-timedelta(minutes=1)).timestamp()): 
-            try:
-                row[3]
-                rate = row[3] + intercalate
-            except:
-                rate = 1
-            
-            if rate <= 2:
-                request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=CALL={rate}.0=endtime={endutcunixtime}'
-                log.debug(f'Time: {endtime}, Command: {request_gateway}')
-                get_request(request_gateway)
-                c = conn.cursor()
-                c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,rate) VALUES(?,?,?,?)''', (row[0],row[1],endutcunixtime,rate,))
-                conn.commit()
+            if int(row[2]) < round((datetime.now() - timedelta(minutes=1)).timestamp()):
+                try:
+                    row[3]
+                    rate = row[3] + intercalate
+                except:
+                    rate = 1
+
+                if rate <= 2:
+                    request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=CALL={rate}.0=endtime={endutcunixtime}'
+                    log.debug(f'Time: {endtime}, Command: {request_gateway}')
+                    get_request(request_gateway)
+                    c = conn.cursor()
+                    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,rate) VALUES(?,?,?,?)''',
+                              (row[0], row[1], endutcunixtime, rate,))
+                    conn.commit()
+                else:
+                    remove_deal(row[1])
             else:
-                remove_deal(row[1])
-        else:
-            log.debug(f'{row} isnt needed prolongation')
-            pass
-            
+                log.debug(f'    - {row}')
+
 
 def remove_deal(currency_pair):
     c = conn.cursor()
