@@ -33,9 +33,9 @@ channel_id = config['Telegram']['channel_id']
 interval = config['Telegram']['interval']
 debug = config['bot']['debug']
 try:
-    intercalate = int(config['deals']['intercalate'])
+    intercalate = float(config['deals']['intercalate'])
 except:
-    intercalate = 1
+    intercalate = float(1)
 
 proxy = (proxy_ip, int(proxy_port), secret)
 
@@ -66,13 +66,13 @@ def generate_output(offset_msg, current_id, message_id, message_text):
         remove_deal(currency_pair)
         get_request(request_gateway)
     elif any(re.findall(r'ВВЕРХ|ВНИЗ', message_text, re.IGNORECASE)): 
-        command = message_text.split(" ")
+        command = re.split("\s+", message_text)
 
         currency_pair = command[0]
 
-        if command[4] == 'ВВЕРХ':
+        if command[3] == 'ВВЕРХ':
             currency_move = 'CALL'
-        elif command[4] == 'ВНИЗ':
+        elif command[3] == 'ВНИЗ':
             currency_move = 'PUT'
 
         endtime, endutcunixtime = calculate_endtime()
@@ -116,7 +116,7 @@ def create_connection_sql(db_file):
         conn = sqlite3.connect(db_file)
         c = conn.cursor()
         c.execute("DROP TABLE IF EXISTS deals")
-        c.execute("CREATE TABLE IF NOT EXISTS deals (id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT, end TEXT, rate INTEGER)")
+        c.execute("CREATE TABLE IF NOT EXISTS deals (id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT, end TEXT, rate TEXT)")
         c.execute("CREATE TABLE IF NOT EXISTS system (id INTEGER PRIMARY KEY AUTOINCREMENT, count INTEGER)")
     except Error as e:
         print(e)
@@ -135,7 +135,7 @@ def proccessing_deals(subject, end):
 
     """
     c = conn.cursor()
-    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,rate) VALUES(null,?,?,?)''', (subject,end,1,))
+    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,rate) VALUES(null,?,?,?)''', (subject,end,'1.0',))
     conn.commit()
     
 
@@ -146,16 +146,15 @@ def prolongation_deals():
         log.debug(f'Stored deals:')
         for row in c.execute('''SELECT id,subject,end,rate FROM deals'''):
             endtime, endutcunixtime = calculate_endtime()
-
             if int(row[2]) < round((datetime.now() - timedelta(minutes=1)).timestamp()):
                 try:
                     row[3]
-                    rate = row[3] + intercalate
+                    rate = float(row[3]) + intercalate
                 except:
-                    rate = 1
+                    rate = float(1)
 
-                if rate <= 2:
-                    request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=CALL={rate}.0=endtime={endutcunixtime}'
+                if rate != 1.0:
+                    request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=CALL={rate}=endtime={endutcunixtime}'
                     log.debug(f'Time: {endtime}, Command: {request_gateway}')
                     get_request(request_gateway)
                     c = conn.cursor()
@@ -223,8 +222,7 @@ while True:
                         if current_id <= message.id: 
                             current_id = message.id
                             counter_sql(current_id)
-                            with open("id.log","w") as f:
-                                f.write(str(current_id))
+                                
             else:
                 log.debug(f'Error! current_id: {current_id}, message_id:  {message.id}, message: {message.message}')
                 current_id = message.id
