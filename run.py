@@ -153,7 +153,7 @@ def prolongation_deals():
                 except:
                     rate = float(1)
 
-                if rate != 1.0:
+                if rate != row[3]:
                     request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=CALL={rate}=endtime={endutcunixtime}'
                     log.debug(f'Time: {endtime}, Command: {request_gateway}')
                     get_request(request_gateway)
