@@ -45,7 +45,7 @@ total_messages = 0
 total_count_limit = 0
 
 def calculate_endtime():
-    endtime = (datetime.now() + timedelta(minutes=15)).replace(second=0, microsecond=0)
+    endtime = (datetime.now() + timedelta(minutes=13)).replace(second=0, microsecond=0)
 
     while True:
         if int(endtime.strftime('%M')) % 15 == 0:
