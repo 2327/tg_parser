@@ -48,7 +48,7 @@ def calculate_endtime():
     if debug == 'true':
         endtime = (datetime.now() + timedelta(minutes=denominator+1)).replace(second=0, microsecond=0)        
     else:
-        endtime = (datetime.now() + timedelta(minutes=denominator+13)).replace(second=0, microsecond=0)
+        endtime = (datetime.now() + timedelta(minutes=denominator)).replace(second=0, microsecond=0)
 
     while True:
         if int(endtime.strftime('%M')) % denominator+1:
