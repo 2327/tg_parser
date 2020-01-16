@@ -30,7 +30,7 @@ proxy_ip = config['Telegram']['proxy_ip']
 proxy_port = config['Telegram']['proxy_port']
 secret = config['Telegram']['secret']
 channel_id = config['Telegram']['channel_id']
-interval = config['Telegram']['interval']
+interval = int(config['Telegram']['interval'])
 debug = config['bot']['debug']
 try:
     intercalate = float(config['deals']['intercalate'])
@@ -45,10 +45,13 @@ total_messages = 0
 total_count_limit = 0
 
 def calculate_endtime():
-    endtime = (datetime.now() + timedelta(minutes=13)).replace(second=0, microsecond=0)
+    if debug == 'true':
+        endtime = (datetime.now() + timedelta(minutes=denominator+1)).replace(second=0, microsecond=0)        
+    else:
+        endtime = (datetime.now() + timedelta(minutes=denominator+13)).replace(second=0, microsecond=0)
 
     while True:
-        if int(endtime.strftime('%M')) % 15 == 0:
+        if int(endtime.strftime('%M')) % denominator+1:
             endutcunixtime = round(endtime.timestamp())
             break
         else:
@@ -146,7 +149,7 @@ def prolongation_deals():
         log.debug(f'Stored deals:')
         for row in c.execute('''SELECT id,subject,end,rate FROM deals'''):
             endtime, endutcunixtime = calculate_endtime()
-            if int(row[2]) < round((datetime.now() - timedelta(minutes=1)).timestamp()):
+            if int(row[2]) <= round((datetime.now() - timedelta(seconds=interval)).timestamp()):
                 try:
                     row[3]
                     rate = float(row[3]) + intercalate
@@ -236,10 +239,10 @@ while True:
         client = None
         history = None
         offset_msg = 0
-        time.sleep(int(interval))
+        time.sleep(interval)
         log.debug(' ')
         log.debug(' ')
     else: 
         log.debug('I havent tasks. Skipping.')
-        time.sleep(int(interval))
+        time.sleep(interval)
 
