@@ -149,7 +149,7 @@ def prolongation_deals():
         log.debug(f'Stored deals:')
         for row in c.execute('''SELECT id,subject,end,rate FROM deals'''):
             endtime, endutcunixtime = calculate_endtime()
-            if int(row[2]) <= round((datetime.now() - timedelta(seconds=30)).timestamp()):
+            if int(row[2]) <= round((datetime.now() - timedelta(seconds=5)).timestamp()):
                 try:
                     row[3]
                     rate = float(row[3]) + intercalate
