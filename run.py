@@ -189,7 +189,7 @@ while True:
     if current_minute % denominator == 0:
         log.debug('Prolongation of remaining transactions.')                                                                                                                                                                                                    
         prolongation_deals()  
-    elif curyyprent_minute + 1 % denominator == 0:
+    elif current_minute + 1 % denominator == 0:
         client = TelegramClient('session_name', api_id, api_hash,
                                 connection=connection.ConnectionTcpMTProxyIntermediate, proxy=proxy)
         client.flood_sleep_threshold = 24 * 60 * 60
