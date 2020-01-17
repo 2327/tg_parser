@@ -185,7 +185,7 @@ else:
 
 log.debug('Start event loop...')
 while True:
-    current_minute = int(datetime.now().strftime('%M')) + 1
+    current_minute = int(datetime.now().strftime('%M'))
     if current_minute % denominator == 0:
         log.debug('Prolongation of remaining transactions.')                                                                                                                                                                                                    
         prolongation_deals()  
