@@ -189,7 +189,7 @@ while True:
     current_minute = int(datetime.now().strftime('%M'))
     if current_minute % denominator == 0:
         prolongation_deals()  
-    elif current_minute + 1 % denominator == 0:
+    elif (current_minute + 1) % denominator == 0:
         client = TelegramClient('session_name', api_id, api_hash,
                                 connection=connection.ConnectionTcpMTProxyIntermediate, proxy=proxy)
         client.flood_sleep_threshold = 24 * 60 * 60
