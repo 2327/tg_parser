@@ -50,7 +50,7 @@ def calculate_endtime():
         endtime = (datetime.now() + timedelta(minutes=denominator - 2)).replace(second=0, microsecond=0)
 
     while True:
-        if int(endtime.strftime('%M')) % denominator:
+        if int(endtime.strftime('%M')) % denominator == 0:
             endutcunixtime = round(endtime.timestamp())
             break
         else:
