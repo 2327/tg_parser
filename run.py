@@ -1,4 +1,3 @@
-
 import configparser, json, time, pytz, requests, logging, re, sqlite3
 from telethon import TelegramClient, connection, sync, events
 from telethon.tl.functions.messages import GetHistoryRequest
@@ -18,12 +17,11 @@ log_stdout = logging.StreamHandler()
 log_stdout.setFormatter(formatter)
 log.addHandler(log_stdout)
 
-
 log.debug('Initialization application...')
 config = configparser.ConfigParser()
 config.read("config.ini")
 
-api_id   = config['Telegram']['api_id']
+api_id = config['Telegram']['api_id']
 api_hash = config['Telegram']['api_hash']
 phone_number = config['Telegram']['phone_number']
 proxy_ip = config['Telegram']['proxy_ip']
@@ -44,21 +42,21 @@ limit_msg = 1
 total_messages = 0
 total_count_limit = 0
 
+
 def calculate_endtime():
     if debug == 'true':
-        endtime = (datetime.now() + timedelta(minutes=denominator+1)).replace(second=0, microsecond=0)        
+        endtime = (datetime.now() + timedelta(minutes=denominator + 1)).replace(second=0, microsecond=0)
     else:
-        endtime = (datetime.now() + timedelta(minutes=denominator)).replace(second=0, microsecond=0)
+        endtime = (datetime.now() + timedelta(minutes=denominator - 2)).replace(second=0, microsecond=0)
 
     while True:
-        if int(endtime.strftime('%M')) % denominator+1:
+        if int(endtime.strftime('%M')) % denominator:
             endutcunixtime = round(endtime.timestamp())
             break
         else:
             endtime = endtime + timedelta(minutes=1)
 
     return endtime, endutcunixtime
-
 
 
 def generate_output(offset_msg, current_id, message_id, message_text):
@@ -68,7 +66,7 @@ def generate_output(offset_msg, current_id, message_id, message_text):
         request_gateway = f'offset: {offset_msg} current_id: {current_id} id: {message_id} message: {message_text}'
         remove_deal(currency_pair)
         get_request(request_gateway)
-    elif any(re.findall(r'ВВЕРХ|ВНИЗ', message_text, re.IGNORECASE)): 
+    elif any(re.findall(r'ВВЕРХ|ВНИЗ', message_text, re.IGNORECASE)):
         command = re.split("\s+", message_text)
 
         currency_pair = command[0]
@@ -103,14 +101,14 @@ def get_request(request_gateway):
 def create_connection_tg(client):
     i = 0
     while True:
-        try: 
+        try:
             client.start()
             break
         except:
             i = i + 1;
-            log.debug(f'Connection error. Retry {i}') 
-            if i > 5: 
-                 exit()
+            log.debug(f'Connection error. Retry {i}')
+            if i > 5:
+                exit()
 
 
 def create_connection_sql(db_file):
@@ -119,11 +117,12 @@ def create_connection_sql(db_file):
         conn = sqlite3.connect(db_file)
         c = conn.cursor()
         c.execute("DROP TABLE IF EXISTS deals")
-        c.execute("CREATE TABLE IF NOT EXISTS deals (id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT, end TEXT, rate TEXT)")
+        c.execute(
+            "CREATE TABLE IF NOT EXISTS deals (id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT, end TEXT, rate TEXT)")
         c.execute("CREATE TABLE IF NOT EXISTS system (id INTEGER PRIMARY KEY AUTOINCREMENT, count INTEGER)")
     except Error as e:
         print(e)
-                                                     
+
     return conn
 
 
@@ -138,9 +137,9 @@ def proccessing_deals(subject, end):
 
     """
     c = conn.cursor()
-    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,rate) VALUES(null,?,?,?)''', (subject,end,'1.0',))
+    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,rate) VALUES(null,?,?,?)''', (subject, end, '1.0',))
     conn.commit()
-    
+
 
 def prolongation_deals():
     c = conn.cursor()
@@ -173,8 +172,8 @@ def prolongation_deals():
 def remove_deal(currency_pair):
     c = conn.cursor()
     for row in c.execute('''SELECT * FROM deals WHERE subject=?''', (currency_pair,)):
-       log.debug(f'Deal finished: {row}')
-       c.execute('''DELETE FROM deals WHERE id=?''', (row[0],))
+        log.debug(f'Deal finished: {row}')
+        c.execute('''DELETE FROM deals WHERE id=?''', (row[0],))
 
 
 conn = create_connection_sql('bot.db')
@@ -186,13 +185,14 @@ else:
 
 log.debug('Start event loop...')
 while True:
-    current_minute = int(datetime.now().strftime('%M'))+1
+    current_minute = int(datetime.now().strftime('%M')) + 1
     if current_minute % denominator == 0:
-        client = TelegramClient('session_name', api_id, api_hash, connection=connection.ConnectionTcpMTProxyIntermediate, proxy=proxy)
+        client = TelegramClient('session_name', api_id, api_hash,
+                                connection=connection.ConnectionTcpMTProxyIntermediate, proxy=proxy)
         client.flood_sleep_threshold = 24 * 60 * 60
         create_connection_tg(client)
         channel = client.get_entity(PeerChannel(int(channel_id)))
-    
+
         if not client.is_user_authorized():
             client.send_code_request(phone)
             try:
@@ -211,7 +211,9 @@ while True:
             current_id = 0
             limit_date = datetime.now() + timedelta(minutes=-1)
 
-        latest_msg = client(GetHistoryRequest(peer=channel, offset_id=offset_msg, offset_date=limit_date, add_offset=0, limit=1, max_id=0, min_id=0, hash=0))
+        latest_msg = client(
+            GetHistoryRequest(peer=channel, offset_id=offset_msg, offset_date=limit_date, add_offset=0, limit=1,
+                              max_id=0, min_id=0, hash=0))
 
         for message in latest_msg.messages:
             if current_id != 0 and current_id <= message.id:
@@ -219,18 +221,19 @@ while True:
                 if offset_msg == 0:
                     log.debug('No new messages.')
                 elif offset_msg >= 1:
-                    history = client(GetHistoryRequest(peer=channel, offset_id=message.id+1, offset_date=None, add_offset=0, limit=10, min_id=current_id, max_id=message.id+1, hash=0))
+                    history = client(
+                        GetHistoryRequest(peer=channel, offset_id=message.id + 1, offset_date=None, add_offset=0,
+                                          limit=10, min_id=current_id, max_id=message.id + 1, hash=0))
                     for message in history.messages:
-                        generate_output(offset_msg, current_id, message.id, message.message) 
-                        if current_id <= message.id: 
+                        generate_output(offset_msg, current_id, message.id, message.message)
+                        if current_id <= message.id:
                             current_id = message.id
                             counter_sql(current_id)
-                                
+
             else:
                 log.debug(f'Error! current_id: {current_id}, message_id:  {message.id}, message: {message.message}')
                 current_id = message.id
                 counter_sql(current_id)
-
 
         log.debug('Prolongation of remaining transactions.')
         prolongation_deals()
@@ -242,7 +245,6 @@ while True:
         time.sleep(interval)
         log.debug(' ')
         log.debug(' ')
-    else: 
+    else:
         log.debug('I havent tasks. Skipping.')
         time.sleep(interval)
-
