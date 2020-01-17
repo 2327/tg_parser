@@ -156,6 +156,7 @@ def prolongation_deals():
                     rate = float(1)
 
                 if rate != row[3]:
+                    log.debug('Prolongation of remaining transaction.')
                     request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=CALL={rate}=endtime={endutcunixtime}'
                     log.debug(f'Time: {endtime}, Command: {request_gateway}')
                     get_request(request_gateway)
@@ -187,7 +188,6 @@ log.debug('Start event loop...')
 while True:
     current_minute = int(datetime.now().strftime('%M'))
     if current_minute % denominator == 0:
-        log.debug('Prolongation of remaining transactions.')                                                                                                                                                                                                    
         prolongation_deals()  
     elif current_minute + 1 % denominator == 0:
         client = TelegramClient('session_name', api_id, api_hash,
