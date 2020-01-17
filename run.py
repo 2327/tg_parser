@@ -96,10 +96,9 @@ def get_request(request_gateway):
     try:
         r = requests.get(request_gateway, verify=False, timeout=1)
         log.debug(f'Got response from gateway - r.status_code')
-        client.send_message('magicfog', message.message)
     except:
         log.debug(f'Gateway not response')
-        client.send_message('magicfog', message.message)
+        
 
 
 def create_connection_tg(client):
