@@ -187,6 +187,9 @@ log.debug('Start event loop...')
 while True:
     current_minute = int(datetime.now().strftime('%M')) + 1
     if current_minute % denominator == 0:
+        log.debug('Prolongation of remaining transactions.')                                                                                                                                                                                                    
+        prolongation_deals()  
+    elif curyyprent_minute + 1 % denominator == 0:
         client = TelegramClient('session_name', api_id, api_hash,
                                 connection=connection.ConnectionTcpMTProxyIntermediate, proxy=proxy)
         client.flood_sleep_threshold = 24 * 60 * 60
@@ -235,8 +238,6 @@ while True:
                 current_id = message.id
                 counter_sql(current_id)
 
-        log.debug('Prolongation of remaining transactions.')
-        prolongation_deals()
         log.debug('Clean variables and objects.')
         client.disconnect()
         client = None
