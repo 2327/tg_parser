@@ -30,10 +30,14 @@ secret = config['Telegram']['secret']
 channel_id = config['Telegram']['channel_id']
 interval = int(config['Telegram']['interval'])
 debug = config['bot']['debug']
+try:                                                                                                                                                                                                                                                            
+    intercalate = float(config['deals']['intercalate'])                                                                                                                                                                                                         
+except:                                                                                                                                                                                                                                                         
+    intercalate = float(1)  
 try:
-    intercalate = float(config['deals']['intercalate'])
+    start_rate = float(config['deals']['start_rate'])
 except:
-    intercalate = float(1)
+    start_rate = float(1)
 
 proxy = (proxy_ip, int(proxy_port), secret)
 
@@ -77,7 +81,7 @@ def generate_output(offset_msg, current_id, message_id, message_text):
             currency_move = 'PUT'
 
         endtime, endutcunixtime = calculate_endtime()
-        request_gateway = f'http://127.0.0.2/?request=frx{currency_pair}={currency_move}=1.0=endtime={endutcunixtime}'
+        request_gateway = f'http://127.0.0.2/?request=frx{currency_pair}={currency_move}={start_rate}=endtime={endutcunixtime}'
         proccessing_deals(currency_pair, endutcunixtime)
         log.debug(f'offset: {offset_msg} current_id: {current_id} id: {message_id} message: {message_text}')
         log.debug(f'Time: {endtime}, Command: {request_gateway}')
@@ -137,7 +141,7 @@ def proccessing_deals(subject, end):
 
     """
     c = conn.cursor()
-    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,rate) VALUES(null,?,?,?)''', (subject, end, '1.0',))
+    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,rate) VALUES(null,?,?,?)''', (subject, end, start_rate,))
     conn.commit()
 
 
