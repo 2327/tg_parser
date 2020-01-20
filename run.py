@@ -153,7 +153,7 @@ def prolongation_deals():
             endtime, endutcunixtime = calculate_endtime()
             if int(row[2]) <= round((datetime.now() - timedelta(seconds=5)).timestamp()):
                 try:
-                    row[3]
+                    float(row[3])
                     rate = float(row[3]) + intercalate
                 except:
                     rate = float(1)
