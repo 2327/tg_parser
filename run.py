@@ -30,7 +30,11 @@ secret = config['Telegram']['secret']
 channel_id = config['Telegram']['channel_id']
 interval = int(config['Telegram']['interval'])
 debug = config['bot']['debug']
-try:                                                                                                                                                                                                                                                            
+try:
+    prolongation = config['deals']['prolongation']
+except:
+    prolongation = true
+try:
     intercalate = float(config['deals']['intercalate'])                                                                                                                                                                                                         
 except:                                                                                                                                                                                                                                                         
     intercalate = float(1)  
@@ -158,7 +162,7 @@ def prolongation_deals():
                 except:
                     rate = float(1)
 
-                if rate > float(row[3]):
+                if rate > float(start_rate):
                     log.debug('Prolongation of remaining transaction.')
                     request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=CALL={rate}=endtime={endutcunixtime}'
                     log.debug(f'Time: {endtime}, Command: {request_gateway}')
@@ -190,8 +194,9 @@ else:
 log.debug('Start event loop...')
 while True:
     current_minute = int(datetime.now().strftime('%M'))
-    if current_minute % denominator == 0:
-        prolongation_deals()  
+    if current_minute % denominator == 0 and prolongation:
+        log.debug('prolongation is true')
+        prolongation_deals()
     elif (current_minute + 1) % denominator == 0:
         client = TelegramClient('session_name', api_id, api_hash,
                                 connection=connection.ConnectionTcpMTProxyIntermediate, proxy=proxy)
