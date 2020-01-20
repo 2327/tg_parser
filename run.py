@@ -160,7 +160,7 @@ def prolongation_deals():
 
                 if rate > float(row[3]):
                     log.debug('Prolongation of remaining transaction.')
-                    request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=PUT={rate}=endtime={endutcunixtime}'
+                    request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=CALL={rate}=endtime={endutcunixtime}'
                     log.debug(f'Time: {endtime}, Command: {request_gateway}')
                     get_request(request_gateway)
                     c = conn.cursor()
