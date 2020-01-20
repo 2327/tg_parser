@@ -153,12 +153,12 @@ def prolongation_deals():
             endtime, endutcunixtime = calculate_endtime()
             if int(row[2]) <= round((datetime.now() - timedelta(seconds=5)).timestamp()):
                 try:
-                    float(row[3])
+                    row[3]
                     rate = float(row[3]) + intercalate
                 except:
                     rate = float(1)
 
-                if rate > row[3]:
+                if rate > float(row[3]):
                     log.debug('Prolongation of remaining transaction.')
                     request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=PUT={rate}=endtime={endutcunixtime}'
                     log.debug(f'Time: {endtime}, Command: {request_gateway}')
