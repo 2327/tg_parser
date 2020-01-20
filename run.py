@@ -33,7 +33,7 @@ debug = config['bot']['debug']
 try:
     prolongation = config['deals']['prolongation']
 except:
-    prolongation = true
+    prolongation = 'true'
 try:
     intercalate = float(config['deals']['intercalate'])                                                                                                                                                                                                         
 except:                                                                                                                                                                                                                                                         
@@ -194,8 +194,7 @@ else:
 log.debug('Start event loop...')
 while True:
     current_minute = int(datetime.now().strftime('%M'))
-    if current_minute % denominator == 0 and prolongation:
-        log.debug('prolongation is true')
+    if current_minute % denominator == 0 and prolongation == 'true':
         prolongation_deals()
     elif (current_minute + 1) % denominator == 0:
         client = TelegramClient('session_name', api_id, api_hash,
