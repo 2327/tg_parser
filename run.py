@@ -144,7 +144,7 @@ def proccessing_deals(subject,end,vector):
 
     """
     c = conn.cursor()
-    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,vector,rate) VALUES(null,?,?,?)''', (subject, end, vector, start_rate,))
+    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,vector,rate) VALUES(null,?,?,?,?)''', (subject, end, vector, start_rate,))
     conn.commit()
 
 
@@ -168,7 +168,7 @@ def prolongation_deals():
                     log.debug(f'Time: {endtime}, Command: {request_gateway}')
                     get_request(request_gateway)
                     c = conn.cursor()
-                    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,vector,rate) VALUES(?,?,?,?)''',
+                    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,vector,rate) VALUES(?,?,?,?,?)''',
                               (row[0], row[1], endutcunixtime, row[3], rate,))
                     conn.commit()
                 else:
@@ -187,7 +187,7 @@ def remove_deal(currency_pair):
 conn = create_connection_sql('bot.db')
 
 if debug == 'true':
-    denominator = 1
+    denominator = 2
 else:
     denominator = 15
 
