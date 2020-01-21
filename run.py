@@ -80,13 +80,13 @@ def generate_output(offset_msg, current_id, message_id, message_text):
         currency_pair = command[0]
 
         if command[3] == 'ВВЕРХ':
-            currency_move = 'CALL'
+            vector = 'CALL'
         elif command[3] == 'ВНИЗ':
-            currency_move = 'PUT'
+            vector = 'PUT'
 
         endtime, endutcunixtime = calculate_endtime()
-        request_gateway = f'http://127.0.0.2/?request=frx{currency_pair}={currency_move}={start_rate}=endtime={endutcunixtime}'
-        proccessing_deals(currency_pair, endutcunixtime)
+        request_gateway = f'http://127.0.0.2/?request=frx{currency_pair}={vector}={start_rate}=endtime={endutcunixtime}'
+        proccessing_deals(currency_pair, endutcunixtime, vector)
         log.debug(f'offset: {offset_msg} current_id: {current_id} id: {message_id} message: {message_text}')
         log.debug(f'Time: {endtime}, Command: {request_gateway}')
         get_request(request_gateway)
@@ -125,7 +125,7 @@ def create_connection_sql(db_file):
         c = conn.cursor()
         c.execute("DROP TABLE IF EXISTS deals")
         c.execute(
-            "CREATE TABLE IF NOT EXISTS deals (id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT, end TEXT, rate TEXT)")
+            "CREATE TABLE IF NOT EXISTS deals (id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT, end TEXT, vector TEXT, rate TEXT)")
         c.execute("CREATE TABLE IF NOT EXISTS system (id INTEGER PRIMARY KEY AUTOINCREMENT, count INTEGER)")
     except Error as e:
         print(e)
@@ -139,37 +139,37 @@ def counter_sql(count):
     conn.commit()
 
 
-def proccessing_deals(subject, end):
+def proccessing_deals(subject,end,vector):
     """
 
     """
     c = conn.cursor()
-    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,rate) VALUES(null,?,?,?)''', (subject, end, start_rate,))
+    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,vector,rate) VALUES(null,?,?,?)''', (subject, end, vector, start_rate,))
     conn.commit()
 
 
 def prolongation_deals():
     c = conn.cursor()
-    stored_deals = c.execute('''SELECT id,subject,end,rate FROM deals''')
+    stored_deals = c.execute('''SELECT id,subject,end,vector,rate FROM deals''')
     if stored_deals.fetchone():
         log.debug(f'Stored deals:')
-        for row in c.execute('''SELECT id,subject,end,rate FROM deals'''):
+        for row in c.execute('''SELECT id,subject,end,vector,rate FROM deals'''):
             endtime, endutcunixtime = calculate_endtime()
             if int(row[2]) <= round((datetime.now() - timedelta(seconds=5)).timestamp()):
                 try:
-                    row[3]
-                    rate = float(row[3]) + intercalate
+                    row[4]
+                    rate = float(row[4]) + intercalate
                 except:
-                    rate = float(1)
+                    rate = float(start_rate)
 
                 if rate > float(start_rate):
                     log.debug('Prolongation of remaining transaction.')
-                    request_gateway = f'http://127.0.0.2/?request=frx{row[1]}=CALL={rate}=endtime={endutcunixtime}'
+                    request_gateway = f'http://127.0.0.2/?request=frx{row[1]}={row[3]}={rate}=endtime={endutcunixtime}'
                     log.debug(f'Time: {endtime}, Command: {request_gateway}')
                     get_request(request_gateway)
                     c = conn.cursor()
-                    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,rate) VALUES(?,?,?,?)''',
-                              (row[0], row[1], endutcunixtime, rate,))
+                    c.execute('''INSERT OR REPLACE INTO deals(id,subject,end,vector,rate) VALUES(?,?,?,?)''',
+                              (row[0], row[1], endutcunixtime, row[3], rate,))
                     conn.commit()
                 else:
                     remove_deal(row[1])
