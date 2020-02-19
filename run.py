@@ -74,12 +74,12 @@ def generate_output(offset_msg, current_id, message_id, message_text):
         request_gateway = f'offset: {offset_msg} current_id: {current_id} id: {message_id} message: {message_text}'
         remove_deal(currency_pair)
         get_request(request_gateway)
-    elif any(re.findall(r'ВВЕРХ|вниз', message_text, re.IGNORECASE)):
+    elif any(re.findall(r'вверх|вниз', message_text, re.IGNORECASE)):
         command = re.split("\s+", message_text)
 
         currency_pair = command[0]
 
-        if command[3] == 'ВВЕРХ':
+        if command[3] == 'вверх':
             vector = 'CALL'
         elif command[3] == 'вниз':
             vector = 'PUT'
