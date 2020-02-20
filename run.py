@@ -79,9 +79,9 @@ def generate_output(offset_msg, current_id, message_id, message_text):
 
         currency_pair = command[0]
 
-        if command[3] == 'вверх':
+        if command[2] == 'вверх':
             vector = 'CALL'
-        elif command[3] == 'вниз':
+        elif command[2] == 'вниз':
             vector = 'PUT'
 
         endtime, endutcunixtime = calculate_endtime()
