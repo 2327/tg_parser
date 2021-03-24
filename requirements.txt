@@ -16,7 +16,7 @@ pycparser==2.19
 python-telegram-bot==12.2.0
 pytz==2019.3
 requests==2.22.0
-rsa==4.0
+rsa==4.1
 six==1.13.0
 Telethon==1.10.8
 tornado==6.0.3
